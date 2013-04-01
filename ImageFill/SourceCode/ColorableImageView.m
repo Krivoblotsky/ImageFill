@@ -14,6 +14,7 @@
 @property (nonatomic) BOOL imageHasBeenDrawn;
 @property (nonatomic, strong) UIImage *image;
 @property (nonatomic, strong) UIColor *color;
+@property (nonatomic) NSInteger counter;
 @end
 
 @implementation ColorableImageView
@@ -54,11 +55,13 @@
         CGContextDrawImage(offscreenContext, CGRectMake(0, 0, width, height), imageRef);
         
         self.color = [UIColor colorWithRed:0.3 green:0.5 blue:0.7 alpha:1];
+        
+        self.counter = 0;
         [self floodFillInContext:offscreenContext
                          atPoint:point
                        withColor:self.color
                    originalImage:imageRef
-                         rawData:rawData];
+                         rawData:rawData direction:0];
         
         CGImageRef resultImage = CGBitmapContextCreateImage(offscreenContext);
         CGContextRelease(offscreenContext);
@@ -66,6 +69,7 @@
         UIImage *image = [UIImage imageWithCGImage:resultImage];
         [image drawInRect:rect];
         free(rawData);
+        CGImageRelease(resultImage);
     }
 }
 
@@ -83,52 +87,51 @@
                    atPoint:(CGPoint)point
                  withColor:(UIColor *)color
              originalImage:(CGImageRef)image
-                   rawData:(unsigned char*)rawData {
+                   rawData:(unsigned char*)rawData
+                 direction:(NSInteger)direction {
     
+    self.counter ++;
     NSUInteger width = CGImageGetWidth(image);
     NSUInteger bytesPerPixel = 4;
     NSUInteger bytesPerRow = bytesPerPixel * width;
     
-    int byteIndex = (bytesPerRow * point.y) + point.x * bytesPerPixel;
+    const CGFloat* components = CGColorGetComponents(color.CGColor);
+    CGFloat newRed = components[0] * 255;
+    CGFloat newGreen = components[1] * 255;
+    CGFloat newBlue = components[2] * 255;
     
-    if (byteIndex > 0) {
-        CGFloat currentRed   = rawData[byteIndex];
-        CGFloat currentGreen = rawData[byteIndex + 1];
-        CGFloat currentBlue  = rawData[byteIndex + 2];
-
-        const CGFloat* components = CGColorGetComponents(color.CGColor);
-        CGFloat newRed = components[0] * 255;
-        CGFloat newGreen = components[1] * 255;
-        CGFloat newBlue = components[2] * 255;
+    NSMutableArray *array = [[NSMutableArray alloc] init];
+    [array addObject:[NSValue valueWithCGPoint:point]];
+    
+    while (array.count) {
+        CGPoint currentPoint = [[array lastObject] CGPointValue];
+        [array removeLastObject];
         
-        if (currentRed != newRed && currentGreen != newGreen && currentBlue != newBlue) {
-            if (currentBlue == 255 && currentBlue == 255 && currentGreen == 255) {
-                
-                rawData[byteIndex] = (char) (newRed);
-                rawData[byteIndex + 1] = (char) (newGreen);
-                rawData[byteIndex + 2] = (char)(newBlue);
-                rawData[byteIndex + 3] = (char)(255);
-                
-                if (point.y - 1 >= 0) {
-                    [self floodFillInContext:context atPoint:CGPointMake(point.x, point.y - 1) withColor:color originalImage:image rawData:rawData];
+        int byteIndex = (bytesPerRow * currentPoint.y) + currentPoint.x * bytesPerPixel;
+        
+        if (byteIndex > 0) {
+            CGFloat currentRed   = rawData[byteIndex];
+            CGFloat currentGreen = rawData[byteIndex + 1];
+            CGFloat currentBlue  = rawData[byteIndex + 2];
+            
+            if (currentRed != newRed && currentGreen != newGreen && currentBlue != newBlue) {
+                if (currentBlue > 230 && currentBlue > 230 && currentGreen > 230) {
+                    
+                    rawData[byteIndex] = (char) (newRed);
+                    rawData[byteIndex + 1] = (char) (newGreen);
+                    rawData[byteIndex + 2] = (char)(newBlue);
+                    rawData[byteIndex + 3] = (char)(255);
+                    
+                    [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x, currentPoint.y - 1)]];
+                    [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x + 1, currentPoint.y)]];
+                    [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x, currentPoint.y + 1)]];
+                    [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x - 1, currentPoint.y)]];
+                } else {
+                    rawData[byteIndex] = (char) (newRed);
+                    rawData[byteIndex + 1] = (char) (newGreen);
+                    rawData[byteIndex + 2] = (char)(newBlue);
+                    rawData[byteIndex + 3] = (char)(200);
                 }
-                
-                if (point.x + 1 <= width) {
-                    [self floodFillInContext:context atPoint:CGPointMake(point.x + 1, point.y) withColor:color originalImage:image rawData:rawData];
-                }
-                
-                if (point.y + 1 <= CGImageGetWidth(image)) {
-                    [self floodFillInContext:context atPoint:CGPointMake(point.x, point.y + 1) withColor:color originalImage:image rawData:rawData];
-                }
-                
-                if (point.x - 1 >= 0) {
-                    [self floodFillInContext:context atPoint:CGPointMake(point.x - 1, point.y) withColor:color originalImage:image rawData:rawData];
-                }
-            } else {
-                rawData[byteIndex] = (char) (newRed);
-                rawData[byteIndex + 1] = (char) (newGreen);
-                rawData[byteIndex + 2] = (char)(newBlue);
-                rawData[byteIndex + 3] = (char)(200);
             }
         }
     }

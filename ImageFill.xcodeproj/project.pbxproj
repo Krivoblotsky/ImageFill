@@ -18,6 +18,7 @@
 		040ED7C91709838000FD1195 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 040ED7C81709838000FD1195 /* Default-568h@2x.png */; };
 		040ED7CC1709838000FD1195 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 040ED7CB1709838000FD1195 /* ViewController.m */; };
 		040ED7CF1709838000FD1195 /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 040ED7CD1709838000FD1195 /* ViewController.xib */; };
+		0418FC5417099D95004A2EEE /* ad3954.png in Resources */ = {isa = PBXBuildFile; fileRef = 0418FC5317099D95004A2EEE /* ad3954.png */; };
 		04869CA71709852C0053BD26 /* FCBrightDarkGradView.m in Sources */ = {isa = PBXBuildFile; fileRef = 04869C9A1709852C0053BD26 /* FCBrightDarkGradView.m */; };
 		04869CA81709852C0053BD26 /* FCColorPickerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04869C9C1709852C0053BD26 /* FCColorPickerViewController.m */; };
 		04869CA91709852C0053BD26 /* FCColorPickerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 04869C9D1709852C0053BD26 /* FCColorPickerViewController.xib */; };
@@ -54,6 +55,7 @@
 		040ED7CA1709838000FD1195 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		040ED7CB1709838000FD1195 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		040ED7CE1709838000FD1195 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController.xib; sourceTree = "<group>"; };
+		0418FC5317099D95004A2EEE /* ad3954.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ad3954.png; sourceTree = "<group>"; };
 		04869C991709852C0053BD26 /* FCBrightDarkGradView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FCBrightDarkGradView.h; sourceTree = "<group>"; };
 		04869C9A1709852C0053BD26 /* FCBrightDarkGradView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FCBrightDarkGradView.m; sourceTree = "<group>"; };
 		04869C9B1709852C0053BD26 /* FCColorPickerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FCColorPickerViewController.h; sourceTree = "<group>"; };
@@ -124,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				04869CC2170989890053BD26 /* raskraska-spanch-boba.png */,
+				0418FC5317099D95004A2EEE /* ad3954.png */,
 				040ED7C11709838000FD1195 /* AppDelegate.h */,
 				040ED7C21709838000FD1195 /* AppDelegate.m */,
 				040ED7CA1709838000FD1195 /* ViewController.h */,
@@ -269,6 +272,7 @@
 				04869CBE170988640053BD26 /* LICENSE in Resources */,
 				04869CBF170988640053BD26 /* README in Resources */,
 				04869CC3170989890053BD26 /* raskraska-spanch-boba.png in Resources */,
+				0418FC5417099D95004A2EEE /* ad3954.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
