@@ -107,30 +107,30 @@
         CGPoint currentPoint = [[array lastObject] CGPointValue];
         [array removeLastObject];
         
-        int byteIndex = (bytesPerRow * currentPoint.y) + currentPoint.x * bytesPerPixel;
-        
-        if (byteIndex > 0) {
-            CGFloat currentRed   = rawData[byteIndex];
-            CGFloat currentGreen = rawData[byteIndex + 1];
-            CGFloat currentBlue  = rawData[byteIndex + 2];
-            
-            if (currentRed != newRed && currentGreen != newGreen && currentBlue != newBlue) {
-                if (currentBlue > 230 && currentBlue > 230 && currentGreen > 230) {
+        if (currentPoint.x >= 0 && currentPoint.x < width && currentPoint.y >= 0 && currentPoint.y < CGImageGetHeight(image)) {
+            int byteIndex = (bytesPerRow * currentPoint.y) + currentPoint.x * bytesPerPixel;
+            if (byteIndex > 0) {
+                    CGFloat currentRed   = rawData[byteIndex];
+                    CGFloat currentGreen = rawData[byteIndex + 1];
+                    CGFloat currentBlue  = rawData[byteIndex + 2];
                     
-                    rawData[byteIndex] = (char) (newRed);
-                    rawData[byteIndex + 1] = (char) (newGreen);
-                    rawData[byteIndex + 2] = (char)(newBlue);
-                    rawData[byteIndex + 3] = (char)(255);
-                    
-                    [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x, currentPoint.y - 1)]];
-                    [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x + 1, currentPoint.y)]];
-                    [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x, currentPoint.y + 1)]];
-                    [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x - 1, currentPoint.y)]];
-                } else {
-                    rawData[byteIndex] = (char) (newRed);
-                    rawData[byteIndex + 1] = (char) (newGreen);
-                    rawData[byteIndex + 2] = (char)(newBlue);
-                    rawData[byteIndex + 3] = (char)(200);
+                    if (currentRed != newRed && currentGreen != newGreen && currentBlue != newBlue) {
+                        if (currentBlue > 230 && currentBlue > 230 && currentGreen > 230) {
+                            rawData[byteIndex] = (char) (newRed);
+                            rawData[byteIndex + 1] = (char) (newGreen);
+                            rawData[byteIndex + 2] = (char)(newBlue);
+                            rawData[byteIndex + 3] = (char)(255);
+                            
+                            [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x, currentPoint.y - 1)]];
+                            [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x + 1, currentPoint.y)]];
+                            [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x, currentPoint.y + 1)]];
+                            [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x - 1, currentPoint.y)]];
+                        } else {
+                            rawData[byteIndex] = (char) (newRed);
+                            rawData[byteIndex + 1] = (char) (newGreen);
+                            rawData[byteIndex + 2] = (char)(newBlue);
+                            rawData[byteIndex + 3] = (char)(200);
+                        }
                 }
             }
         }
