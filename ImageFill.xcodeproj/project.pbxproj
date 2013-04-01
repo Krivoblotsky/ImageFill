@@ -36,6 +36,7 @@
 		04869CC0170988640053BD26 /* UIColor+Expanded.m in Sources */ = {isa = PBXBuildFile; fileRef = 04869CBA170988640053BD26 /* UIColor+Expanded.m */; };
 		04869CC1170988640053BD26 /* UIColor+HSV.m in Sources */ = {isa = PBXBuildFile; fileRef = 04869CBC170988640053BD26 /* UIColor+HSV.m */; };
 		04869CC3170989890053BD26 /* raskraska-spanch-boba.png in Resources */ = {isa = PBXBuildFile; fileRef = 04869CC2170989890053BD26 /* raskraska-spanch-boba.png */; };
+		7B1CFC1E1709C9AE00BC7C26 /* SKPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B1CFC1D1709C9AD00BC7C26 /* SKPoint.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -79,6 +80,8 @@
 		04869CBB170988640053BD26 /* UIColor+HSV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+HSV.h"; sourceTree = "<group>"; };
 		04869CBC170988640053BD26 /* UIColor+HSV.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+HSV.m"; sourceTree = "<group>"; };
 		04869CC2170989890053BD26 /* raskraska-spanch-boba.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "raskraska-spanch-boba.png"; sourceTree = "<group>"; };
+		7B1CFC1C1709C9AD00BC7C26 /* SKPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SKPoint.h; sourceTree = "<group>"; };
+		7B1CFC1D1709C9AD00BC7C26 /* SKPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SKPoint.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,6 +161,8 @@
 				04869CB5170988640053BD26 /* UIColor-Utilities */,
 				04869CB2170985C60053BD26 /* ColorableImageView.h */,
 				04869CB3170985C60053BD26 /* ColorableImageView.m */,
+				7B1CFC1C1709C9AD00BC7C26 /* SKPoint.h */,
+				7B1CFC1D1709C9AD00BC7C26 /* SKPoint.m */,
 				04869C981709852C0053BD26 /* FCColorPicker */,
 			);
 			path = SourceCode;
@@ -292,6 +297,7 @@
 				04869CB4170985C60053BD26 /* ColorableImageView.m in Sources */,
 				04869CC0170988640053BD26 /* UIColor+Expanded.m in Sources */,
 				04869CC1170988640053BD26 /* UIColor+HSV.m in Sources */,
+				7B1CFC1E1709C9AE00BC7C26 /* SKPoint.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

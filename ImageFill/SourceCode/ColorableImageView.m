@@ -8,6 +8,7 @@
 
 #import "ColorableImageView.h"
 #import <QuartzCore/QuartzCore.h>
+#import "SKPoint.h"
 
 @interface ColorableImageView()
 @property (nonatomic) CGPoint pointTouched;
@@ -58,11 +59,14 @@
         
         self.counter = 0;
         
+        NSLog(@"Start");
         [self floodFillInContext:offscreenContext
                          atPoint:point
                        withColor:self.color
                    originalImage:imageRef
                          rawData:rawData direction:0];
+        
+        NSLog(@"End");
         
         CGImageRef resultImage = CGBitmapContextCreateImage(offscreenContext);
         CGContextRelease(offscreenContext);
@@ -104,11 +108,15 @@
     NSMutableArray *array = [[NSMutableArray alloc] init];
 
     //Add CGpoint
-    NSData *pointObject = [NSData dataWithBytes:&point length:sizeof(CGPoint)];
+    SKPoint *pointObject = [[SKPoint alloc] init];
+    pointObject.x = point.x;
+    pointObject.y = point.y;
     [array addObject:pointObject];
     
     while (array.count) {        
-        CGPoint currentPoint = *(CGPoint*)[[array lastObject] bytes];
+        
+        SKPoint *currentPoint = [array lastObject];
+        
         [array removeLastObject];
         
         if (currentPoint.x >= 0 && currentPoint.x < width && currentPoint.y >= 0 && currentPoint.y < CGImageGetHeight(image)) {
@@ -125,22 +133,26 @@
                             rawData[byteIndex + 2] = (char)(newBlue);
                             rawData[byteIndex + 3] = (char)(255);
                             
-                            CGPoint firstPoint = CGPointMake(currentPoint.x, currentPoint.y - 1);
-                            NSData *pointObject = [NSData dataWithBytes:&firstPoint length:sizeof(CGPoint)];
-                            [array addObject:pointObject];
-                            
-                            CGPoint secondPoint = CGPointMake(currentPoint.x + 1, currentPoint.y);
-                            pointObject = [NSData dataWithBytes:&secondPoint length:sizeof(CGPoint)];
-                            [array addObject:pointObject];
-
-                            CGPoint thirdPoint = CGPointMake(currentPoint.x, currentPoint.y + 1);
-                            pointObject = [NSData dataWithBytes:&thirdPoint length:sizeof(CGPoint)];
-                            [array addObject:pointObject];
-                            
-                            CGPoint fourPoint = CGPointMake(currentPoint.x - 1, currentPoint.y);
-                            pointObject = [NSData dataWithBytes:&fourPoint length:sizeof(CGPoint)];
-                            [array addObject:pointObject];
-                            
+                           SKPoint *point = [[SKPoint alloc] init];
+                           point.x = currentPoint.x;
+                           point.y = currentPoint.y - 1;
+                           [array addObject:point];
+                           
+                           point = [[SKPoint alloc] init];
+                           point.x = currentPoint.x + 1;
+                           point.y = currentPoint.y;
+                           [array addObject:point];
+                           
+                           point = [[SKPoint alloc] init];
+                           point.x = currentPoint.x;
+                           point.y = currentPoint.y + 1;
+                           [array addObject:point];
+                                              
+                            point = [[SKPoint alloc] init];
+                            point.x = currentPoint.x - 1;
+                            point.y = currentPoint.y;
+                            [array addObject:point];
+                                              
                         } else {
                             rawData[byteIndex] = (char) (newRed);
                             rawData[byteIndex + 1] = (char) (newGreen);
