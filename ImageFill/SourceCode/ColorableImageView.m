@@ -57,6 +57,7 @@
         self.color = [UIColor colorWithRed:0.3 green:0.5 blue:0.7 alpha:1];
         
         self.counter = 0;
+        
         [self floodFillInContext:offscreenContext
                          atPoint:point
                        withColor:self.color
@@ -101,10 +102,13 @@
     CGFloat newBlue = components[2] * 255;
     
     NSMutableArray *array = [[NSMutableArray alloc] init];
-    [array addObject:[NSValue valueWithCGPoint:point]];
+
+    //Add CGpoint
+    NSData *pointObject = [NSData dataWithBytes:&point length:sizeof(CGPoint)];
+    [array addObject:pointObject];
     
-    while (array.count) {
-        CGPoint currentPoint = [[array lastObject] CGPointValue];
+    while (array.count) {        
+        CGPoint currentPoint = *(CGPoint*)[[array lastObject] bytes];
         [array removeLastObject];
         
         if (currentPoint.x >= 0 && currentPoint.x < width && currentPoint.y >= 0 && currentPoint.y < CGImageGetHeight(image)) {
@@ -121,10 +125,22 @@
                             rawData[byteIndex + 2] = (char)(newBlue);
                             rawData[byteIndex + 3] = (char)(255);
                             
-                            [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x, currentPoint.y - 1)]];
-                            [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x + 1, currentPoint.y)]];
-                            [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x, currentPoint.y + 1)]];
-                            [array addObject:[NSValue valueWithCGPoint:CGPointMake(currentPoint.x - 1, currentPoint.y)]];
+                            CGPoint firstPoint = CGPointMake(currentPoint.x, currentPoint.y - 1);
+                            NSData *pointObject = [NSData dataWithBytes:&firstPoint length:sizeof(CGPoint)];
+                            [array addObject:pointObject];
+                            
+                            CGPoint secondPoint = CGPointMake(currentPoint.x + 1, currentPoint.y);
+                            pointObject = [NSData dataWithBytes:&secondPoint length:sizeof(CGPoint)];
+                            [array addObject:pointObject];
+
+                            CGPoint thirdPoint = CGPointMake(currentPoint.x, currentPoint.y + 1);
+                            pointObject = [NSData dataWithBytes:&thirdPoint length:sizeof(CGPoint)];
+                            [array addObject:pointObject];
+                            
+                            CGPoint fourPoint = CGPointMake(currentPoint.x - 1, currentPoint.y);
+                            pointObject = [NSData dataWithBytes:&fourPoint length:sizeof(CGPoint)];
+                            [array addObject:pointObject];
+                            
                         } else {
                             rawData[byteIndex] = (char) (newRed);
                             rawData[byteIndex + 1] = (char) (newGreen);
