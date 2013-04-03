@@ -10,11 +10,17 @@
 #import <QuartzCore/QuartzCore.h>
 #import "SKPoint.h"
 
+typedef struct {
+    CGFloat red;
+    CGFloat green;
+    CGFloat blue;
+    CGFloat alpha;
+} Color;
+
 @interface ColorableImageView()
 @property (nonatomic) CGPoint pointTouched;
 @property (nonatomic) BOOL imageHasBeenDrawn;
 @property (nonatomic, strong) UIImage *image;
-@property (nonatomic, strong) UIColor *color;
 @property (nonatomic) NSInteger counter;
 @end
 
@@ -34,7 +40,7 @@
         UIImage* image = [UIImage imageNamed:@"raskraska-spanch-boba"];
         [image drawInRect:rect];
         self.imageHasBeenDrawn = YES;
-    } else {
+    } else {        
         CGImageRef imageRef = [self.image CGImage];
         
         NSUInteger width = CGImageGetWidth(imageRef);
@@ -55,19 +61,14 @@
         CGPoint point = CGPointMake(self.pointTouched.x * scale, self.pointTouched.y * scale);
         CGContextDrawImage(offscreenContext, CGRectMake(0, 0, width, height), imageRef);
         
-        self.color = [UIColor colorWithRed:0.3 green:0.5 blue:0.7 alpha:1];
-        
         self.counter = 0;
         
-        NSLog(@"Start");
         [self floodFillInContext:offscreenContext
                          atPoint:point
                        withColor:self.color
                    originalImage:imageRef
                          rawData:rawData direction:0];
-        
-        NSLog(@"End");
-        
+                
         CGImageRef resultImage = CGBitmapContextCreateImage(offscreenContext);
         CGContextRelease(offscreenContext);
         
@@ -101,68 +102,112 @@
     NSUInteger bytesPerRow = bytesPerPixel * width;
     
     const CGFloat* components = CGColorGetComponents(color.CGColor);
-    CGFloat newRed = components[0] * 255;
-    CGFloat newGreen = components[1] * 255;
-    CGFloat newBlue = components[2] * 255;
+    Color newColor = {floorf(components[0] * 255), floor(components[1] * 255), floor(components[2] * 255)};
+    Color oldColor = [self colorAtPoint:point bytesPerRow:bytesPerRow bytesPerPixel:bytesPerPixel inData:rawData];
+    if (colorEqualsColor(oldColor, newColor, NO)) {
+        return;
+    }
     
     NSMutableArray *array = [[NSMutableArray alloc] init];
-
+    
     //Add CGpoint
     SKPoint *pointObject = [[SKPoint alloc] init];
     pointObject.x = point.x;
     pointObject.y = point.y;
     [array addObject:pointObject];
     
-    while (array.count) {        
-        
+    BOOL spanLeft = 0;
+    BOOL spanRight = 0;
+    
+    while (array.count) {
         SKPoint *currentPoint = [array lastObject];
-        
         [array removeLastObject];
         
-        if (currentPoint.x >= 0 && currentPoint.x < width && currentPoint.y >= 0 && currentPoint.y < CGImageGetHeight(image)) {
-            int byteIndex = (bytesPerRow * currentPoint.y) + currentPoint.x * bytesPerPixel;
-            if (byteIndex > 0) {
-                    CGFloat currentRed   = rawData[byteIndex];
-                    CGFloat currentGreen = rawData[byteIndex + 1];
-                    CGFloat currentBlue  = rawData[byteIndex + 2];
-                    
-                    if (currentRed != newRed && currentGreen != newGreen && currentBlue != newBlue) {
-                        if (currentBlue > 230 && currentBlue > 230 && currentGreen > 230) {
-                            rawData[byteIndex] = (char) (newRed);
-                            rawData[byteIndex + 1] = (char) (newGreen);
-                            rawData[byteIndex + 2] = (char)(newBlue);
-                            rawData[byteIndex + 3] = (char)(255);
-                            
-                           SKPoint *point = [[SKPoint alloc] init];
-                           point.x = currentPoint.x;
-                           point.y = currentPoint.y - 1;
-                           [array addObject:point];
-                           
-                           point = [[SKPoint alloc] init];
-                           point.x = currentPoint.x + 1;
-                           point.y = currentPoint.y;
-                           [array addObject:point];
-                           
-                           point = [[SKPoint alloc] init];
-                           point.x = currentPoint.x;
-                           point.y = currentPoint.y + 1;
-                           [array addObject:point];
-                                              
-                            point = [[SKPoint alloc] init];
-                            point.x = currentPoint.x - 1;
-                            point.y = currentPoint.y;
-                            [array addObject:point];
-                                              
-                        } else {
-                            rawData[byteIndex] = (char) (newRed);
-                            rawData[byteIndex + 1] = (char) (newGreen);
-                            rawData[byteIndex + 2] = (char)(newBlue);
-                            rawData[byteIndex + 3] = (char)(200);
-                        }
-                }
-            }
+        CGFloat y1 = currentPoint.y;
+        while (y1 >= 0 &&
+               colorEqualsColor([self colorAtPoint:CGPointMake(currentPoint.x, y1)
+                                       bytesPerRow:bytesPerRow
+                                     bytesPerPixel:bytesPerPixel inData:rawData],oldColor,NO)) {
+            y1--;
         }
+        
+        y1++;
+        spanLeft = spanRight = 0;
+        
+        while (y1 < CGImageGetHeight(image) &&
+               colorEqualsColor([self colorAtPoint:CGPointMake(currentPoint.x,y1)
+                                       bytesPerRow:bytesPerRow bytesPerPixel:bytesPerPixel
+                                            inData:rawData], oldColor, NO)) {
+            
+            
+            int byteIndex = (bytesPerRow * y1) + currentPoint.x * bytesPerPixel;
+            rawData[byteIndex] = (char) (newColor.red);
+            rawData[byteIndex + 1] = (char) (newColor.green);
+            rawData[byteIndex + 2] = (char)(newColor.blue);
+            rawData[byteIndex + 3] = (char)(255);
+            
+            if (!spanLeft &&
+                currentPoint.x > 0 &&
+                colorEqualsColor([self colorAtPoint:CGPointMake(currentPoint.x - 1, y1)
+                                        bytesPerRow:bytesPerRow
+                                      bytesPerPixel:bytesPerPixel
+                                             inData:rawData], oldColor, NO)) {
+                SKPoint *newPoint = [[SKPoint alloc] init];
+                newPoint.x = currentPoint.x - 1;
+                newPoint.y = y1;
+                [array addObject:newPoint];
+                spanLeft = YES;
+            } else if (spanLeft &&
+                       currentPoint.x > 0 &&
+                       !colorEqualsColor([self colorAtPoint:CGPointMake(currentPoint.x - 1, y1)
+                                                bytesPerRow:bytesPerRow
+                                              bytesPerPixel:bytesPerPixel
+                                                     inData:rawData], oldColor, NO)) {
+                spanLeft = NO;
+            } else if (!spanRight &&
+                       currentPoint.x < width - 1 &&
+                       colorEqualsColor([self colorAtPoint:CGPointMake(currentPoint.x + 1, y1)
+                                               bytesPerRow:bytesPerRow
+                                             bytesPerPixel:bytesPerPixel
+                                                    inData:rawData], oldColor, NO)) {
+                SKPoint *newPoint = [[SKPoint alloc] init];
+                newPoint.x = currentPoint.x + 1;
+                newPoint.y = y1;
+                [array addObject:newPoint];
+                spanRight = YES;
+            } else if (spanRight &&
+                       currentPoint.x < width - 1 &&
+                       !colorEqualsColor([self colorAtPoint:CGPointMake(currentPoint.x + 1, y1)
+                                               bytesPerRow:bytesPerRow
+                                              bytesPerPixel:bytesPerPixel
+                                                    inData:rawData], oldColor, NO)) {
+                spanRight = NO;
+            }
+            
+            y1++;
+        };
+        
     }
 }
 
+- (Color)colorAtPoint:(CGPoint)point
+          bytesPerRow:(NSUInteger)bytesPerRow
+        bytesPerPixel:(NSUInteger)bytesPerPixel
+               inData:(unsigned char*)rawData {
+    int byteIndex = (bytesPerRow * point.y) + point.x * bytesPerPixel;
+    Color color = {rawData[byteIndex], rawData[byteIndex + 1], rawData[byteIndex + 2],rawData[byteIndex + 3]};
+    return color;
+}
+
+- (Color)colorAtByteIndex:(NSUInteger)byteIndex inRawData:(unsigned char *)rawData {
+    Color color = {rawData[byteIndex], rawData[byteIndex + 1], rawData[byteIndex + 2],rawData[byteIndex + 3]};
+    return color;
+}
+
+BOOL colorEqualsColor(Color color1, Color color2, BOOL countAlpha) {
+    if (countAlpha && color1.alpha != color2.alpha) {
+        return NO;
+    }
+    return (color1.red == color2.red && color1.green == color2.green && color1.blue == color2.blue);
+}
 @end

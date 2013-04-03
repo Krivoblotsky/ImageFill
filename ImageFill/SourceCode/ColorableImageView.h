@@ -9,5 +9,5 @@
 #import <UIKit/UIKit.h>
 
 @interface ColorableImageView : UIView
-
+@property (nonatomic, strong) UIColor *color;
 @end
